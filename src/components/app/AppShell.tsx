@@ -109,6 +109,27 @@ export default function AppShell({ user }: { user: { email: string; isAdmin: boo
     loadArchives();
   }
 
+  async function editMessage(messageId: string, content: string) {
+    if (!selectedId) return;
+    await api.updateMessage(selectedId, messageId, { content });
+    await loadDetail(selectedId);
+  }
+
+  async function removeMessage(messageId: string) {
+    if (!selectedId) return;
+    await api.deleteMessage(selectedId, messageId);
+    await loadDetail(selectedId);
+    loadArchives();
+  }
+
+  async function clearAllMessages() {
+    if (!selectedId || !detail) return;
+    if (!confirm(t.clearAllConfirm.replace('{n}', String(detail.messages.length)))) return;
+    await api.clearMessages(selectedId);
+    await loadDetail(selectedId);
+    loadArchives();
+  }
+
   async function importFile(content: string, opts: { source?: string; myUsername?: string }) {
     if (!selectedId) return;
     const { added } = await api.importFile(selectedId, { content, ...opts });
@@ -294,7 +315,15 @@ export default function AppShell({ user }: { user: { email: string; isAdmin: boo
             <div className="archive-content">
               {error && <div className="error-banner" style={{ margin: '0 0 14px' }}>{error}</div>}
               {tab === 'messages' && (
-                <MessagesTab detail={detail} lang={lang} onAddMessage={addMessage} onImport={importFile} />
+                <MessagesTab
+                  detail={detail}
+                  lang={lang}
+                  onAddMessage={addMessage}
+                  onImport={importFile}
+                  onEditMessage={editMessage}
+                  onDeleteMessage={removeMessage}
+                  onClearMessages={clearAllMessages}
+                />
               )}
               {tab === 'journal' && (
                 <JournalTab detail={detail} lang={lang} onAdd={addJournal} onDelete={deleteJournal} />

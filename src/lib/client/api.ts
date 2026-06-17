@@ -40,6 +40,15 @@ export const api = {
 
   addMessage: (id: string, body: { sender: 'me' | 'them'; content: string }) =>
     req<{ message: Message }>(`/api/archives/${id}/messages`, { method: 'POST', body: JSON.stringify(body) }),
+  updateMessage: (id: string, messageId: string, body: { content?: string; sender?: 'me' | 'them' }) =>
+    req<{ message: Message }>(`/api/archives/${id}/messages/${messageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  deleteMessage: (id: string, messageId: string) =>
+    req<{ ok: true }>(`/api/archives/${id}/messages/${messageId}`, { method: 'DELETE' }),
+  clearMessages: (id: string) =>
+    req<{ deleted: number }>(`/api/archives/${id}/messages`, { method: 'DELETE' }),
   importFile: (id: string, body: { content: string; source?: string; myUsername?: string }) =>
     req<{ added: number }>(`/api/archives/${id}/import`, { method: 'POST', body: JSON.stringify(body) }),
 

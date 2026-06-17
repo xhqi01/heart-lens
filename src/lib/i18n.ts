@@ -200,6 +200,11 @@ const en: Dict = {
   traitsLabel: 'Trait tags (optional)',
   traitsPlaceholder: 'e.g. guarded, witty, needs space',
   attachmentNone: '— not set —',
+  // Message management
+  editMsg: 'Edit',
+  saveMsg: 'Save',
+  clearAll: '🗑 Clear all',
+  clearAllConfirm: 'Delete all {n} messages in this archive? This cannot be undone.',
 };
 
 const zh: Dict = {
