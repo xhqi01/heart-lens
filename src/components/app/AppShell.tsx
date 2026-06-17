@@ -80,7 +80,13 @@ export default function AppShell({ user }: { user: { email: string; isAdmin: boo
     loadDetail(id);
   }
 
-  async function createArchive(data: { name: string; context?: string }) {
+  async function createArchive(data: {
+    name: string;
+    context?: string;
+    mbti?: string;
+    attachment?: string;
+    traits?: string;
+  }) {
     const { id } = await api.createArchive(data);
     await loadArchives();
     setShowNew(false);
@@ -103,9 +109,9 @@ export default function AppShell({ user }: { user: { email: string; isAdmin: boo
     loadArchives();
   }
 
-  async function importFile(content: string, myUsername?: string) {
+  async function importFile(content: string, opts: { source?: string; myUsername?: string }) {
     if (!selectedId) return;
-    const { added } = await api.importFile(selectedId, { content, myUsername });
+    const { added } = await api.importFile(selectedId, { content, ...opts });
     await loadDetail(selectedId);
     loadArchives();
     if (added === 0) setError('No messages were found in that file.');

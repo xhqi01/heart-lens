@@ -8,6 +8,7 @@ import {
   imageSystem,
   imagePrompt,
   type SimpleMessage,
+  type PersonaTags,
 } from './prompts';
 import { validateAnalysis, validatePrediction, validateImage } from './validate';
 
@@ -25,11 +26,12 @@ export async function runAnalysis(
   messages: SimpleMessage[],
   archiveContext: string | null,
   lang = 'en',
+  tags?: PersonaTags,
 ): Promise<Record<string, unknown>> {
   const raw = await provider.complete({
     system: analyzeSystem(lang),
-    messages: [{ role: 'user', content: analyzePrompt(messages, archiveContext) }],
-    maxTokens: 2500,
+    messages: [{ role: 'user', content: analyzePrompt(messages, archiveContext, tags) }],
+    maxTokens: 4000,
   });
   const parsed = parseJsonResponse(raw);
   validateAnalysis(parsed);

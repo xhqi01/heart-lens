@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { getT } from '@/lib/i18n';
+import { IMPORT_SOURCES } from '@/lib/parsers/sources';
 import type { ArchiveDetail } from '@/lib/client/types';
 
 export default function MessagesTab({
@@ -13,14 +14,18 @@ export default function MessagesTab({
   detail: ArchiveDetail;
   lang: string;
   onAddMessage: (sender: 'me' | 'them', content: string) => Promise<void>;
-  onImport: (content: string, myUsername?: string) => Promise<void>;
+  onImport: (content: string, opts: { source?: string; myUsername?: string }) => Promise<void>;
 }) {
   const t = getT(lang);
   const [sender, setSender] = useState<'me' | 'them'>('me');
   const [text, setText] = useState('');
   const [myUsername, setMyUsername] = useState('');
+  const [source, setSource] = useState<string>('instagram');
+  const [pasteText, setPasteText] = useState('');
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const current = IMPORT_SOURCES.find((s) => s.id === source) || IMPORT_SOURCES[0];
 
   async function add() {
     if (!text.trim()) return;
@@ -36,9 +41,25 @@ export default function MessagesTab({
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const content = await file.text();
-    await onImport(content, myUsername.trim() || undefined);
-    if (fileRef.current) fileRef.current.value = '';
+    setBusy(true);
+    try {
+      const content = await file.text();
+      await onImport(content, { source, myUsername: myUsername.trim() || undefined });
+    } finally {
+      setBusy(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  async function doPaste() {
+    if (!pasteText.trim()) return;
+    setBusy(true);
+    try {
+      await onImport(pasteText, { source: 'paste', myUsername: myUsername.trim() || undefined });
+      setPasteText('');
+    } finally {
+      setBusy(false);
+    }
   }
 
   const messages = detail.messages;
@@ -48,21 +69,57 @@ export default function MessagesTab({
     <div className="messages-panel">
       <div className="import-card">
         <div className="section-label">{t.importTitle}</div>
-        <div className="import-grid">
-          <button className="import-btn" onClick={() => fileRef.current?.click()}>
-            <span className="import-btn-icon">📸</span> Instagram JSON
-          </button>
-          <button className="import-btn" onClick={() => fileRef.current?.click()}>
-            <span className="import-btn-icon">💬</span> WhatsApp JSON
-          </button>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <span className="pattern-key">{t.importSource}</span>
+          <select value={source} onChange={(e) => setSource(e.target.value)} style={{ maxWidth: 170 }}>
+            {IMPORT_SOURCES.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          {current.fileBased && (
+            <button
+              className="import-btn"
+              style={{ flex: 'none' }}
+              onClick={() => fileRef.current?.click()}
+              disabled={busy}
+            >
+              📂 {t.chooseFile}
+            </button>
+          )}
         </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="application/json,.json"
-          style={{ display: 'none' }}
-          onChange={handleFile}
-        />
+
+        {current.fileBased && (
+          <input
+            ref={fileRef}
+            type="file"
+            accept={current.accept}
+            style={{ display: 'none' }}
+            onChange={handleFile}
+          />
+        )}
+
+        {!current.fileBased && (
+          <>
+            <textarea
+              rows={5}
+              placeholder={t.pasteHint}
+              value={pasteText}
+              onChange={(e) => setPasteText(e.target.value)}
+              style={{ marginBottom: 8 }}
+            />
+            <button
+              className="btn-primary"
+              onClick={doPaste}
+              disabled={busy || !pasteText.trim()}
+              style={{ marginBottom: 10 }}
+            >
+              {t.doImport}
+            </button>
+          </>
+        )}
+
         <input
           type="text"
           placeholder={t.yourNamePlaceholder}
@@ -70,7 +127,7 @@ export default function MessagesTab({
           onChange={(e) => setMyUsername(e.target.value)}
           style={{ marginBottom: 10 }}
         />
-        <div className="import-hint">{t.importHint}</div>
+        <div className="import-hint">{current.hint}</div>
       </div>
 
       <div className="messages-list-card">

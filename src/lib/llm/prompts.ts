@@ -8,18 +8,40 @@ export interface SimpleMessage {
   content: string;
 }
 
+export interface PersonaTags {
+  mbti?: string | null;
+  attachment?: string | null;
+  traits?: string | null;
+}
+
 export function analyzeSystem(lang: string): string {
   return `You are an expert relationship and communication analyst.
-Analyze conversation patterns with psychological depth and practical insight.
+Analyze conversation patterns with psychological depth and practical insight, and build a precise behavioral persona of THEM.
+When the user provides manual facts about THEM (MBTI, attachment style, trait tags), prioritize those over your own inference and note any conflict.
+Cite short direct quotes from the transcript where they support a conclusion. Mark a field as "insufficient data" when the transcript is too thin to support it.
 Respond ONLY in valid JSON — no markdown, no prose outside the JSON.
 The user is "ME" in the transcript. "THEM" is the person they are analyzing.${getAILanguageInstruction(lang)}`;
 }
 
-export function analyzePrompt(messages: SimpleMessage[], archiveContext?: string | null): string {
+function tagsBlock(tags?: PersonaTags): string {
+  if (!tags) return '';
+  const parts: string[] = [];
+  if (tags.mbti) parts.push(`MBTI: ${tags.mbti}`);
+  if (tags.attachment) parts.push(`Attachment style: ${tags.attachment}`);
+  if (tags.traits) parts.push(`Trait tags: ${tags.traits}`);
+  if (parts.length === 0) return '';
+  return `\nKnown facts about THEM (prioritize these over inference):\n- ${parts.join('\n- ')}\n`;
+}
+
+export function analyzePrompt(
+  messages: SimpleMessage[],
+  archiveContext?: string | null,
+  tags?: PersonaTags,
+): string {
   const transcript = formatMessagesForAI(messages, 300);
   return `Analyze this conversation between ME and THEM.
 Archive context: ${archiveContext || 'No additional context'}
-
+${tagsBlock(tags)}
 Transcript (most recent ${Math.min(messages.length, 300)} messages):
 ${transcript}
 
@@ -49,6 +71,36 @@ Return JSON with exactly this structure:
     "meCount": <number>,
     "themCount": <number>,
     "avgThemLength": <integer, average word count of THEM messages>
+  },
+  "persona": {
+    "coreRules": ["concrete behavioral rule: when [situation], THEM does [behavior], not [what you might assume]"],
+    "expressionStyle": {
+      "catchphrases": ["recurring phrases they use"],
+      "highFrequencyWords": ["words/phrases used 3+ times"],
+      "signatureEmoji": [{ "emoji": "x", "context": "when/how they use it" }],
+      "sentenceStyle": "short vs long, conclusion-first vs build-up, formality 1-5",
+      "replyRhythm": "fast/slow/mood-based, with detail",
+      "disengagementSignals": "how they signal they don't want to talk (e.g. one-word replies)"
+    },
+    "emotionalPatterns": {
+      "showsCare": { "how": "how they show they care", "quote": "short quote or omit" },
+      "showsDispleasure": { "how": "how they show anger/displeasure", "quote": "short quote or omit" },
+      "apology": { "how": "direct / indirect / via action", "quote": "short quote or omit" },
+      "affection": { "how": "when and how they express liking/love", "quote": "short quote or omit" }
+    },
+    "conflictChain": {
+      "triggers": ["what sets them off"],
+      "firstReaction": "their first reaction",
+      "escalation": "how a conflict escalates",
+      "coldWar": "do they go cold, how long, who breaks first",
+      "reconciliation": "their reconciliation signal"
+    },
+    "relationshipRole": {
+      "initiation": "how often and what prompts them to reach out first",
+      "disappearingSigns": "early signs they're about to go quiet",
+      "reappearing": "how they come back",
+      "boundaryTopics": ["topics they avoid or shut down"]
+    }
   }
 }`;
 }

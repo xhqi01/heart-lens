@@ -1,5 +1,7 @@
 # HeartLens
 
+**English** · [中文](README_CN.md)
+
 Private, **self-hosted** conversation intelligence. Import or paste a chat, and HeartLens
 uses your own LLM provider to analyze engagement patterns, predict how a draft message will
 land, and keep private journal notes — all on infrastructure you control.
@@ -18,9 +20,16 @@ browser), SQLite storage, and an installable mobile PWA.
 - **BYOK, encrypted:** per-user `{ provider, baseURL, model, apiKey }`. The key is encrypted
   with AES-256-GCM and only decrypted server-side when proxying a request.
 - **Providers:** Anthropic and any OpenAI-compatible endpoint (OpenRouter, LiteLLM, local…).
-- **Archives** per person: import Instagram/WhatsApp JSON, add messages, write journal notes
-  (typed or voice), then **Analyze** and **Predict**. Screenshot analysis via vision models.
-- **Per-user isolation**, JSON export/import, installable **PWA** with a mobile layout.
+- **Imports:** **WeChat** (MemoTrace/留痕 or PyWxDump CSV · TXT · JSON), **Instagram**,
+  **WhatsApp**, **iMessage** (TXT), generic **CSV**, or **paste** text. Imports auto-detect or
+  pick a source; order is preserved even without timestamps.
+- **Analyze · Predict · Persona:** engagement score, patterns and topic reactions, message
+  prediction, screenshot (vision) analysis, plus a deep **behavioral persona** — core rules,
+  expression fingerprint (catchphrases, signature emoji, reply rhythm), conflict chains, and
+  disappearing/reappearing patterns (inspired by [ex-skill](https://github.com/titanwings/ex-skill)).
+  Optional manual tags (MBTI, attachment style, traits) are prioritised over inference.
+- **Archives** per person with journal notes (typed or voice), **per-user isolation**, JSON
+  export/import, and an installable **PWA** with a mobile layout.
 
 ## Tech
 

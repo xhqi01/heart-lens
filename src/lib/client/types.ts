@@ -33,6 +33,9 @@ export interface ArchiveDetail {
   name: string;
   theirName: string | null;
   context: string | null;
+  mbti: string | null;
+  attachment: string | null;
+  traits: string | null;
   updatedAt: number;
   messages: Message[];
   journal: JournalEntry[];

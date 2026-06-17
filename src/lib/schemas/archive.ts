@@ -1,15 +1,23 @@
 import { z } from 'zod';
 
+export const ATTACHMENT_STYLES = ['secure', 'anxious', 'avoidant', 'disorganized', 'unknown'] as const;
+
 export const createArchiveSchema = z.object({
   name: z.string().min(1).max(120),
   theirName: z.string().max(120).optional(),
   context: z.string().max(4000).optional(),
+  mbti: z.string().max(20).optional(),
+  attachment: z.enum(ATTACHMENT_STYLES).optional(),
+  traits: z.string().max(500).optional(),
 });
 
 export const updateArchiveSchema = z.object({
   name: z.string().min(1).max(120).optional(),
   theirName: z.string().max(120).optional(),
   context: z.string().max(4000).optional(),
+  mbti: z.string().max(20).optional(),
+  attachment: z.enum(ATTACHMENT_STYLES).optional(),
+  traits: z.string().max(500).optional(),
 });
 
 export const addMessageSchema = z.object({
@@ -26,6 +34,7 @@ export const journalSchema = z.object({
 
 export const importSchema = z.object({
   content: z.string().min(2).max(20_000_000),
+  source: z.enum(['instagram', 'whatsapp', 'wechat', 'imessage', 'csv', 'paste']).optional(),
   myUsername: z.string().max(200).optional(),
 });
 

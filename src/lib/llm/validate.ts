@@ -6,11 +6,20 @@ const ajv = new Ajv({ allErrors: true });
 
 const analysisValidator = ajv.compile({
   type: 'object',
-  required: ['summary', 'overallScore', 'patterns', 'communicationStyle'],
+  required: ['summary', 'overallScore', 'patterns', 'communicationStyle', 'persona'],
   properties: {
     overallScore: { type: 'number' },
     patterns: { type: 'object' },
     communicationStyle: { type: 'object' },
+    persona: {
+      type: 'object',
+      required: ['coreRules', 'expressionStyle'],
+      properties: {
+        coreRules: { type: 'array' },
+        expressionStyle: { type: 'object' },
+      },
+      additionalProperties: true,
+    },
   },
   additionalProperties: true,
 });

@@ -39,6 +39,9 @@ model Archive {
   name      String
   theirName String?
   context   String?
+  mbti       String? // optional manual tag, e.g. "ISFP"
+  attachment String? // "secure" | "anxious" | "avoidant" | "disorganized" | "unknown"
+  traits     String? // comma-separated free-form trait tags
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   messages  Message[]
