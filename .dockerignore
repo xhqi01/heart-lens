@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.gitignore
+prisma/data
+*.db
+*.db-journal
+.env
+.env.local
+.playwright-mcp
+playwright-report
+test-results
+coverage
+README.md

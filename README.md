@@ -1,136 +1,88 @@
-# 💗 HeartLens — Conversation Intelligence
+# HeartLens
 
-> Read between the lines. / 行間を読む。
+Private, **self-hosted** conversation intelligence. Import or paste a chat, and HeartLens
+uses your own LLM provider to analyze engagement patterns, predict how a draft message will
+land, and keep private journal notes — all on infrastructure you control.
 
-**[English](#english) · [日本語](#japanese)**
+This is the reconstructed v2: a multi-tenant **Next.js** app with accounts, a server-side
+**bring-your-own-key** proxy (your API key is encrypted at rest and never sent to the
+browser), SQLite storage, and an installable mobile PWA.
 
----
+> **Privacy model.** v1 ran entirely in the browser. v2 stores data in **your own server's
+> database** and proxies all model calls server-side. Nothing goes to a third party other
+> than the LLM provider you configure.
 
-<a name="english"></a>
-## English
+## Features
 
-HeartLens is a **privacy-first, AI-powered conversation analysis tool** that runs entirely in your browser. Upload your chat exports, analyze communication patterns, and predict how your messages might land — without your data ever leaving your device.
+- **Accounts** with invite/admin-only registration (configurable).
+- **BYOK, encrypted:** per-user `{ provider, baseURL, model, apiKey }`. The key is encrypted
+  with AES-256-GCM and only decrypted server-side when proxying a request.
+- **Providers:** Anthropic and any OpenAI-compatible endpoint (OpenRouter, LiteLLM, local…).
+- **Archives** per person: import Instagram/WhatsApp JSON, add messages, write journal notes
+  (typed or voice), then **Analyze** and **Predict**. Screenshot analysis via vision models.
+- **Per-user isolation**, JSON export/import, installable **PWA** with a mobile layout.
 
-### ✨ Features
+## Tech
 
-| Feature | Description |
-|---------|-------------|
-| 📂 **Multiple Archives** | Keep separate analysis spaces for different people |
-| 📱 **Chat Import** | Import Instagram & WhatsApp JSON exports |
-| ✍️ **Manual Entry** | Add messages by hand for quick one-off analyses |
-| 🖼 **Screenshot Analysis** | Drop a conversation screenshot for instant insights |
-| ◈ **Pattern Analysis** | Engagement scores, topic reactions, communication style, attachment signals |
-| ⚡ **Response Predictor** | Draft a message, get a prediction + improved alternatives |
-| 🔒 **100% Local** | All data in IndexedDB. Zero backend. Your conversations stay yours. |
+Next.js 14 (App Router, TypeScript) · Prisma + SQLite · `jose` sessions · `bcryptjs` ·
+AES-256-GCM · `zod` (input) + `ajv` (model-output validation) · Vitest.
 
-### 🚀 Quick Start
-
-**Prerequisites:** Node.js 18+, an [Anthropic API key](https://console.anthropic.com)
-
-```bash
-git clone https://github.com/YOUR_USERNAME/heart-lens
-cd heart-lens
-npm install
-npm start
-```
-
-Open `http://localhost:3000`, go to ⚙ Settings, enter your API key.
-
-### 💰 Cost
-
-HeartLens uses `claude-sonnet-4-6`. Typical costs:
-- Full conversation analysis: ~$0.003–0.008
-- Response prediction: ~$0.002–0.005
-- Screenshot analysis: ~$0.003–0.006
-
-### 🔒 Privacy
-
-- All messages stored in **IndexedDB** (your browser's local storage)
-- API calls go **directly** from your browser to `api.anthropic.com`
-- No server, no database, no tracking
-- Clear browser data to wipe everything
-
-### 📁 File Format Support
-
-**Instagram:** `Settings > Your activity > Download your information > Messages`
-Export as JSON. Upload `messages_1.json`.
-
-**WhatsApp:** Open chat > `⋮` > More > Export chat (without media). Upload the `.json` file.
-
-### 🛠 Tech Stack
-
-- React 18 · IndexedDB · Anthropic Claude API
-- IBM Plex Sans + IBM Plex Mono
-- Zero external dependencies beyond React + Recharts
-
-### ⚠️ Disclaimer
-
-HeartLens is an analysis aid, not a relationship oracle. Predictions are pattern-based estimates, not guarantees. Use your own judgment.
-
----
-
-<a name="japanese"></a>
-## 日本語
-
-HeartLens（ハートレンズ）は、**プライバシー優先のAI会話分析ツール**です。すべてブラウザ上で動作し、データが外部サーバーに送信されることは一切ありません。チャット履歴をアップロードしてパターンを分析し、送ろうとしているメッセージへの反応を予測できます。
-
-### ✨ 主な機能
-
-| 機能 | 説明 |
-|------|------|
-| 📂 **複数アーカイブ** | 相手ごとに分析スペースを分けて管理 |
-| 📱 **チャットインポート** | Instagram・WhatsAppのJSONエクスポートに対応 |
-| ✍️ **手動入力** | メッセージを手入力して分析 |
-| 🖼 **スクリーンショット分析** | 会話の画像をドロップしてすぐに解析 |
-| ◈ **パターン分析** | エンゲージメントスコア・トピック別反応・コミュニケーションスタイル・愛着スタイルの分析 |
-| ⚡ **返信予測** | 送ろうとしているメッセージの反応を予測＋改善案を提示 |
-| 🔒 **完全ローカル** | データはIndexedDBに保存。バックエンドサーバーなし。 |
-
-### 🚀 使い方
-
-**必要なもの：** Node.js 18以上、[Anthropic APIキー](https://console.anthropic.com)
+## Quick start (local)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/heart-lens
-cd heart-lens
 npm install
-npm start
+cp .env.example .env        # then edit the secrets (see below)
+npm run db:migrate          # create the SQLite database
+npm run create-user -- --email you@example.com --password yourpassword --admin
+npm run dev                 # http://localhost:3000
 ```
 
-`http://localhost:3000` を開き、⚙ 設定からAPIキーを入力してください。
+Sign in, open **Settings**, and save your provider config (Anthropic or OpenAI-compatible
+base URL + model + key). Create an archive, add at least 5 messages, then **Analyze**.
 
-### 💰 利用コスト
+### Environment variables
 
-`claude-sonnet-4-6` モデルを使用しています。目安：
-- 会話分析1回：約$0.003〜$0.008（約0.5〜1.2円）
-- 返信予測1回：約$0.002〜$0.005
-- スクリーンショット分析：約$0.003〜$0.006
+| Variable             | Required | Description                                                            |
+| -------------------- | -------- | ---------------------------------------------------------------------- |
+| `DATABASE_URL`       | yes      | SQLite path, e.g. `file:./data/heartlens.db` (relative to `prisma/`).  |
+| `AUTH_SECRET`        | yes      | Session signing secret. `openssl rand -base64 48`.                     |
+| `APP_ENCRYPTION_KEY` | yes      | 32-byte base64 key for API-key encryption. `openssl rand -base64 32`.  |
+| `REGISTRATION_MODE`  | no       | `invite` (default; accounts via script) or `open` (public signup).     |
 
-### 🔒 プライバシーについて
+## Self-host with Docker
 
-- すべてのメッセージは **IndexedDB**（ブラウザのローカルストレージ）に保存
-- APIコールはブラウザから **直接** `api.anthropic.com` に送信
-- 中間サーバーなし・データ収集なし・トラッキングなし
-- ブラウザのデータを消去すれば完全に削除されます
+Create a `.env` next to `docker-compose.yml` with `AUTH_SECRET`, `APP_ENCRYPTION_KEY`, and
+optionally `REGISTRATION_MODE`, then:
 
-### 📁 対応ファイル形式
+```bash
+docker compose up --build -d
+# create the first account inside the running container:
+docker compose exec app npm run create-user -- --email you@example.com --password yourpassword --admin
+```
 
-**Instagram：** 設定 > あなたのアクティビティ > 情報のダウンロード > メッセージ
-JSON形式でエクスポートし、`messages_1.json` をアップロード。
+The SQLite database persists in the `heartlens-data` volume. Migrations run automatically on
+boot. The app listens on port 3000.
 
-**WhatsApp：** チャットを開く > `⋮` > その他 > チャットをエクスポート（メディアなし）
-`.json` ファイルをアップロード。
+## Accounts
 
-### ⚠️ 免責事項
+In the default `invite` mode, public signup is disabled. Create accounts with:
 
-HeartLens は分析の補助ツールです。予測はパターンに基づく推定であり、保証ではありません。最終的な判断はご自身でお願いします。
+```bash
+npm run create-user -- --email user@example.com --password theirpassword [--admin]
+```
 
----
+Set `REGISTRATION_MODE=open` to allow self-service signup from the login screen.
 
-## License
+## Tests
 
-MIT © 2024
+```bash
+npm test        # unit tests (crypto, sessions, provider adapters, LLM orchestration)
+```
 
----
+## Security notes
 
-*Built with ♡ using React + Claude API*
+- API keys are encrypted at rest (AES-256-GCM) and never returned to the client — Settings
+  shows only a masked value.
+- All model calls are proxied through the server; the browser never holds a provider key.
+- Every archive/message/journal/analysis query is scoped to the authenticated user.
+- Passwords are hashed with bcrypt; sessions are signed JWTs in `httpOnly` cookies.
