@@ -12,13 +12,24 @@ import {
 } from './prompts';
 import { validateAnalysis, validatePrediction, validateImage } from './validate';
 
-// Strip markdown fences and parse JSON from a model reply.
+// Parse JSON from a model reply, tolerating markdown fences and surrounding prose.
 export function parseJsonResponse(raw: string): Record<string, unknown> {
+  const cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
   try {
-    return JSON.parse(raw.replace(/```json|```/g, '').trim());
+    return JSON.parse(cleaned);
   } catch {
-    throw new Error('The model returned an invalid format. Please try again.');
+    /* fall through to substring extraction */
   }
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start >= 0 && end > start) {
+    try {
+      return JSON.parse(cleaned.slice(start, end + 1));
+    } catch {
+      /* fall through */
+    }
+  }
+  throw new Error('The model returned a response that could not be parsed as JSON. Try a different model.');
 }
 
 export async function runAnalysis(

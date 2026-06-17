@@ -14,7 +14,7 @@ export const IMPORT_SOURCES: ImportSourceMeta[] = [
   {
     id: 'instagram',
     label: 'Instagram',
-    hint: 'Instagram → Settings → Your activity → Download your information (JSON). Upload message_1.json.',
+    hint: 'Instagram → Settings → Your activity → Download your information (JSON). Upload message_1.json, and set "your name" exactly as it appears in the chat.',
     fileBased: true,
     accept: '.json,application/json',
   },
@@ -28,7 +28,7 @@ export const IMPORT_SOURCES: ImportSourceMeta[] = [
   {
     id: 'wechat',
     label: 'WeChat',
-    hint: 'Export with MemoTrace (留痕) or PyWxDump as CSV / TXT / JSON, then upload the file.',
+    hint: 'Export your WeChat history to CSV, TXT, or JSON with a desktop WeChat export tool, then upload it. Plain "Name: message" text also works.',
     fileBased: true,
     accept: '.csv,.txt,.json',
   },

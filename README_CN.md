@@ -13,7 +13,7 @@
 - **账户**：默认仅限邀请/管理员创建（可配置）。
 - **BYOK，加密存储：** 每个用户独立的 `{ provider, baseURL, model, apiKey }`。密钥使用 AES-256-GCM 加密，仅在服务端代理请求时解密。
 - **服务商：** 支持 Anthropic 以及任何 OpenAI 兼容端点（OpenRouter、LiteLLM、本地模型等）。
-- **导入：** **微信**（MemoTrace/留痕 或 PyWxDump 导出的 CSV · TXT · JSON）、**Instagram**、**WhatsApp**、**iMessage**（TXT）、通用 **CSV**，或直接 **粘贴** 文本。导入支持自动识别或手动选择来源；即使没有时间戳也会保留消息顺序。
+- **导入：** **微信**（桌面端微信导出工具导出的 CSV · TXT · JSON）、**Instagram**、**WhatsApp**、**iMessage**（TXT）、通用 **CSV**，或直接 **粘贴** 文本。导入支持自动识别或手动选择来源；即使没有时间戳也会保留消息顺序。
 - **分析 · 预测 · 人格画像：** 参与度评分、沟通模式与话题反应、消息预测、截图（视觉）分析，以及一份深度 **行为人格画像** —— 核心行为法则、表达指纹（口头禅、招牌 emoji、回复节奏）、冲突链路、以及消失/重现模式（灵感来自 [ex-skill](https://github.com/titanwings/ex-skill)）。可选的手动标签（MBTI、依恋风格、特质）会优先于模型推断。
 - **每人一个存档**，含随手笔记（打字或语音）、**用户间数据隔离**、JSON 导出/导入，以及可安装的移动端 **PWA**。
 
@@ -68,7 +68,7 @@ npm run create-user -- --email user@example.com --password theirpassword [--admi
 
 | 来源 | 格式 | 如何获取 |
 | ---- | ---- | -------- |
-| 微信 | CSV / TXT / JSON | 用 MemoTrace（留痕）或 PyWxDump 在桌面端导出，然后上传文件。 |
+| 微信 | CSV / TXT / JSON | 用桌面端的微信聊天导出工具导出，然后上传文件。 |
 | Instagram | JSON | 设置 → 你的动态 → 下载你的信息，上传 message_1.json。 |
 | WhatsApp | JSON | 打开对话 → ⋮ → 更多 → 导出聊天记录，转换为 JSON 数组。 |
 | iMessage | TXT | 在 macOS 上用导出工具（如 imessage-exporter）导出，再上传。 |

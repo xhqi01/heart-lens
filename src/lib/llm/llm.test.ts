@@ -91,7 +91,7 @@ describe('llm orchestration', () => {
   });
 
   it('throws on invalid JSON', async () => {
-    await expect(runAnalysis(fakeProvider('not json'), [], null)).rejects.toThrow(/invalid format/);
+    await expect(runAnalysis(fakeProvider('not json'), [], null)).rejects.toThrow(/could not be parsed/i);
   });
 
   it('throws when the analysis is missing required fields', async () => {
@@ -107,5 +107,14 @@ describe('llm orchestration', () => {
 
   it('parseJsonResponse handles plain objects', () => {
     expect(parseJsonResponse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('parseJsonResponse extracts JSON wrapped in prose or markdown', () => {
+    expect(parseJsonResponse('Sure! Here you go:\n```json\n{"a":1}\n```\nHope that helps')).toEqual({ a: 1 });
+    expect(parseJsonResponse('{"a":1}\n\nLet me know if you need more.')).toEqual({ a: 1 });
+  });
+
+  it('parseJsonResponse throws on a response with no JSON object', () => {
+    expect(() => parseJsonResponse('I cannot help with that.')).toThrow();
   });
 });

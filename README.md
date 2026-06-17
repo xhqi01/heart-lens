@@ -20,7 +20,7 @@ browser), SQLite storage, and an installable mobile PWA.
 - **BYOK, encrypted:** per-user `{ provider, baseURL, model, apiKey }`. The key is encrypted
   with AES-256-GCM and only decrypted server-side when proxying a request.
 - **Providers:** Anthropic and any OpenAI-compatible endpoint (OpenRouter, LiteLLM, local…).
-- **Imports:** **WeChat** (MemoTrace/留痕 or PyWxDump CSV · TXT · JSON), **Instagram**,
+- **Imports:** **WeChat** (CSV · TXT · JSON export), **Instagram**,
   **WhatsApp**, **iMessage** (TXT), generic **CSV**, or **paste** text. Imports auto-detect or
   pick a source; order is preserved even without timestamps.
 - **Analyze · Predict · Persona:** engagement score, patterns and topic reactions, message

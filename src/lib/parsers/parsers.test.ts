@@ -33,6 +33,23 @@ describe('instagram', () => {
     expect(out).toHaveLength(2);
     expect(out[0].sender).toBe('me');
   });
+
+  it('decodes a latin1-escaped (e.g. Japanese) sender_name before matching myUsername', () => {
+    const realName = '李　勝己';
+    // Instagram stores UTF-8 bytes re-interpreted as latin1; build that form here.
+    const igEncoded = Buffer.from(realName, 'utf8').toString('latin1');
+    const jp = JSON.stringify({
+      participants: [{ name: 'x' }],
+      messages: [
+        { sender_name: igEncoded, content: 'a', timestamp_ms: 1 },
+        { sender_name: 'Alex', content: 'b', timestamp_ms: 2 },
+      ],
+    });
+    const out = parseImport(jp, { source: 'instagram', myUsername: realName });
+    expect(out[0].senderName).toBe(realName);
+    expect(out[0].sender).toBe('me');
+    expect(out[1].sender).toBe('them');
+  });
 });
 
 describe('whatsapp', () => {

@@ -1,4 +1,5 @@
 import type { LLMProvider, CompleteRequest, ProviderRuntimeConfig } from './types';
+import { extractProviderError } from './util';
 
 // Adapter for any OpenAI-compatible /chat/completions endpoint
 // (OpenAI, OpenRouter, LiteLLM, local servers, ...).
@@ -39,20 +40,31 @@ export class OpenAICompatibleProvider implements LLMProvider {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${this.cfg.apiKey}`,
       },
+      // No response_format: many OpenAI-compatible providers reject it (or return
+      // empty content). The prompts already require JSON and parsing is tolerant.
       body: JSON.stringify({
         model: this.cfg.model,
         max_tokens: req.maxTokens,
         messages,
-        response_format: { type: 'json_object' },
       }),
     });
 
+    const text = await res.text();
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}) as Record<string, unknown>);
-      const message = (err as { error?: { message?: string } })?.error?.message;
-      throw new Error(message || `OpenAI API error ${res.status}`);
+      throw new Error(extractProviderError(text, res.status));
     }
-    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    return data?.choices?.[0]?.message?.content ?? '';
+    let data: { choices?: { message?: { content?: string } }[] };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error('The provider returned a non-JSON response.');
+    }
+    const content = data?.choices?.[0]?.message?.content ?? '';
+    if (!content) {
+      throw new Error(
+        'The provider returned an empty response — check the model name and that the base URL is OpenAI-compatible.',
+      );
+    }
+    return content;
   }
 }
