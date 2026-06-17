@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      # SQLite file lives inside the persisted volume below.
+      DATABASE_URL: 'file:./data/heartlens.db'
+      AUTH_SECRET: '${AUTH_SECRET:?set AUTH_SECRET in a .env file next to this compose file}'
+      APP_ENCRYPTION_KEY: '${APP_ENCRYPTION_KEY:?set APP_ENCRYPTION_KEY in a .env file next to this compose file}'
+      REGISTRATION_MODE: '${REGISTRATION_MODE:-invite}'
+    volumes:
+      - heartlens-data:/app/prisma/data
+    restart: unless-stopped
+
+volumes:
+  heartlens-data:
