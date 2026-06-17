@@ -1,4 +1,4 @@
-# HeartLens — Conversation Intelligence
+# HeartLens — Conversation Intelligence💗
 
 > Read between the lines.
 
