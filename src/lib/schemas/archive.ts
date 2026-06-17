@@ -26,6 +26,11 @@ export const addMessageSchema = z.object({
   timestamp: z.number().int().positive().optional(),
 });
 
+export const updateMessageSchema = z.object({
+  content: z.string().min(1).max(8000).optional(),
+  sender: z.enum(['me', 'them']).optional(),
+});
+
 export const journalSchema = z.object({
   text: z.string().min(1).max(8000),
   tags: z.string().max(500).optional(),

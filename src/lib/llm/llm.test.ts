@@ -74,14 +74,17 @@ describe('llm orchestration', () => {
     expect(prompt).toContain('guarded, witty');
   });
 
-  it('throws when the analysis is missing the persona block', async () => {
+  it('still succeeds when the model omits the persona block (persona is optional)', async () => {
     const noPersona = JSON.stringify({
       summary: 's',
       overallScore: 80,
       patterns: { x: 'y' },
       communicationStyle: { label: 'a', description: 'b', attachment: 'secure' },
     });
-    await expect(runAnalysis(fakeProvider(noPersona), [], null)).rejects.toThrow(/validation/);
+    const out = await runAnalysis(fakeProvider(noPersona), [], null);
+    expect(out.summary).toBe('s');
+    expect(out.tier).toBe('vhigh');
+    expect(out.persona).toBeUndefined();
   });
 
   it('runPrediction derives confidence on the result and suggestions', async () => {

@@ -165,6 +165,38 @@ export async function importMessages(userId: string, id: string, parsed: ParsedM
   return { added: parsed.length };
 }
 
+export async function deleteMessage(userId: string, archiveId: string, messageId: string) {
+  await ownedArchive(userId, archiveId);
+  await prisma.message.deleteMany({ where: { id: messageId, archiveId } });
+  await touch(archiveId);
+}
+
+export async function updateMessage(
+  userId: string,
+  archiveId: string,
+  messageId: string,
+  input: { content?: string; sender?: 'me' | 'them' },
+) {
+  await ownedArchive(userId, archiveId);
+  await prisma.message.updateMany({
+    where: { id: messageId, archiveId },
+    data: {
+      ...(input.content !== undefined ? { content: input.content } : {}),
+      ...(input.sender !== undefined ? { sender: input.sender } : {}),
+    },
+  });
+  await touch(archiveId);
+  const updated = await prisma.message.findFirst({ where: { id: messageId, archiveId } });
+  return updated ? serializeMessage(updated) : null;
+}
+
+export async function clearMessages(userId: string, archiveId: string) {
+  await ownedArchive(userId, archiveId);
+  const result = await prisma.message.deleteMany({ where: { archiveId } });
+  await touch(archiveId);
+  return { deleted: result.count };
+}
+
 // Combined input for the analyze/predict proxy: messages + merged context (archive note + journal).
 export async function getAnalysisInput(userId: string, id: string) {
   const a = await ownedArchive(userId, id);

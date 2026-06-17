@@ -5,16 +5,31 @@ import { getT } from '@/lib/i18n';
 import { IMPORT_SOURCES } from '@/lib/parsers/sources';
 import type { ArchiveDetail } from '@/lib/client/types';
 
+const actionBtn = {
+  background: 'transparent',
+  border: 'none',
+  color: 'var(--text-muted)',
+  cursor: 'pointer',
+  fontSize: 11,
+  padding: '0 3px',
+};
+
 export default function MessagesTab({
   detail,
   lang,
   onAddMessage,
   onImport,
+  onEditMessage,
+  onDeleteMessage,
+  onClearMessages,
 }: {
   detail: ArchiveDetail;
   lang: string;
   onAddMessage: (sender: 'me' | 'them', content: string) => Promise<void>;
   onImport: (content: string, opts: { source?: string; myUsername?: string }) => Promise<void>;
+  onEditMessage: (messageId: string, content: string) => Promise<void>;
+  onDeleteMessage: (messageId: string) => Promise<void>;
+  onClearMessages: () => Promise<void>;
 }) {
   const t = getT(lang);
   const [sender, setSender] = useState<'me' | 'them'>('me');
@@ -23,6 +38,8 @@ export default function MessagesTab({
   const [source, setSource] = useState<string>('instagram');
   const [pasteText, setPasteText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const current = IMPORT_SOURCES.find((s) => s.id === source) || IMPORT_SOURCES[0];
@@ -57,6 +74,23 @@ export default function MessagesTab({
     try {
       await onImport(pasteText, { source: 'paste', myUsername: myUsername.trim() || undefined });
       setPasteText('');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function startEdit(id: string, content: string) {
+    setEditingId(id);
+    setEditText(content);
+  }
+
+  async function saveEdit() {
+    if (!editingId || !editText.trim()) return;
+    setBusy(true);
+    try {
+      await onEditMessage(editingId, editText.trim());
+      setEditingId(null);
+      setEditText('');
     } finally {
       setBusy(false);
     }
@@ -135,10 +169,20 @@ export default function MessagesTab({
           <span className="section-label" style={{ margin: 0 }}>
             {t.tabMessages}
           </span>
-          <span className="archive-item-meta">
-            {messages.length > 100
-              ? t.showingLast.replace('{n}', String(messages.length))
-              : `${messages.length} ${t.msgs}`}
+          <span style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <span className="archive-item-meta">
+              {messages.length > 100
+                ? t.showingLast.replace('{n}', String(messages.length))
+                : `${messages.length} ${t.msgs}`}
+            </span>
+            {messages.length > 0 && (
+              <button
+                onClick={onClearMessages}
+                style={{ ...actionBtn, color: 'var(--accent)', fontFamily: 'var(--sans)' }}
+              >
+                {t.clearAll}
+              </button>
+            )}
           </span>
         </div>
         <div className="messages-scroll">
@@ -150,7 +194,36 @@ export default function MessagesTab({
                 <span className={`msg-tag ${m.sender === 'me' ? 'me' : 'them'}`}>
                   {m.sender === 'me' ? t.me : t.them}
                 </span>
-                <div className={`msg-bubble ${m.sender === 'me' ? 'me' : 'them'}`}>{m.content}</div>
+                {editingId === m.id ? (
+                  <div style={{ display: 'flex', gap: 6, flex: 1, alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                      style={{ flex: 1 }}
+                      autoFocus
+                    />
+                    <button className="btn-primary" onClick={saveEdit} disabled={busy || !editText.trim()}>
+                      {t.saveMsg}
+                    </button>
+                    <button style={actionBtn} onClick={() => setEditingId(null)} title={t.cancel}>
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className={`msg-bubble ${m.sender === 'me' ? 'me' : 'them'}`}>{m.content}</div>
+                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                      <button style={actionBtn} title={t.editMsg} onClick={() => startEdit(m.id, m.content)}>
+                        ✎
+                      </button>
+                      <button style={actionBtn} title="Delete" onClick={() => onDeleteMessage(m.id)}>
+                        ✕
+                      </button>
+                    </span>
+                  </>
+                )}
               </div>
             ))
           )}
