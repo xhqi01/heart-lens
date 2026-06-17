@@ -329,7 +329,15 @@ export default function AppShell({ user }: { user: { email: string; isAdmin: boo
                 <JournalTab detail={detail} lang={lang} onAdd={addJournal} onDelete={deleteJournal} />
               )}
               {tab === 'analysis' && (
-                <AnalysisTab analysis={detail.analysis} lang={lang} loading={analyzing} error={analyzeError} />
+                <AnalysisTab
+                  analysis={detail.analysis}
+                  lang={lang}
+                  loading={analyzing}
+                  error={analyzeError}
+                  archiveName={detail.name}
+                  theirName={detail.theirName}
+                  messageCount={detail.messages.length}
+                />
               )}
               {tab === 'predict' && <PredictTab lang={lang} onPredict={runPredict} />}
               {tab === 'image' && <ImageTab lang={lang} onAnalyze={runImage} />}

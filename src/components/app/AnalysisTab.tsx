@@ -8,11 +8,17 @@ export default function AnalysisTab({
   lang,
   loading,
   error,
+  archiveName,
+  theirName,
+  messageCount,
 }: {
   analysis: AnyJson | null;
   lang: string;
   loading: boolean;
   error: string;
+  archiveName?: string;
+  theirName?: string | null;
+  messageCount?: number;
 }) {
   const t = getT(lang);
 
@@ -33,6 +39,23 @@ export default function AnalysisTab({
 
   return (
     <div className="analysis-panel">
+      <div className="print-header">
+        <div className="print-header-title">{t.appName} · {t.analysisReport}</div>
+        <div className="print-header-meta">
+          {[archiveName, theirName ? `· ${theirName}` : '', messageCount != null ? `· ${messageCount} ${t.msgs}` : '']
+            .filter(Boolean)
+            .join(' ')}
+          {' · '}
+          {new Date().toLocaleDateString(lang)}
+        </div>
+      </div>
+
+      <div className="analysis-actions no-print">
+        <button className="btn-print" onClick={() => window.print()}>
+          {t.exportPdf}
+        </button>
+      </div>
+
       <div className="card">
         <div className="score-hero">
           <div className="tier-circle" style={{ borderColor: tier.color, background: tier.bg }}>

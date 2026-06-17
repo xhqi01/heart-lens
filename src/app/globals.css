@@ -1302,3 +1302,87 @@ select {
     border-top-color: var(--accent);
   }
 }
+
+/* ===== Analysis PDF export (print-to-PDF) ===== */
+.print-header {
+  display: none;
+}
+.analysis-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+.btn-print {
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-print:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Hide all app chrome — print only the analysis */
+  .no-print,
+  .app-sidebar,
+  .archive-topbar,
+  .archive-tabs,
+  .bottom-nav,
+  .error-banner {
+    display: none !important;
+  }
+  /* Neutralize the flex shell so the analysis flows full width */
+  .app-shell,
+  .app-main,
+  .archive-view,
+  .archive-content {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  body {
+    background: #fff !important;
+    color: var(--text-primary);
+  }
+  /* Report header shown only in print */
+  .print-header {
+    display: block !important;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .print-header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .print-header-meta {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  /* Keep cards intact across page breaks */
+  .card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+}

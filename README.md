@@ -16,6 +16,7 @@
 - 📥 **Imports:** 💬 **WeChat** (CSV · TXT · JSON export), 📸 **Instagram**, 🟢 **WhatsApp**, 🍎 **iMessage** (TXT), 🧾 generic **CSV**, or ✍️ **paste** text. 🪄 Imports auto-detect or pick a source; ⏱️ order is preserved even without timestamps.
 - 📊🔮🧠 **Analyze · Predict · Persona:** engagement score 💯, patterns and topic reactions 🗂️, message prediction 🔮, screenshot (vision) analysis 🖼️, plus a deep **behavioral persona** 🧬 — core rules 📜, expression fingerprint (catchphrases 💬, signature emoji 😏, reply rhythm 🥁), conflict chains ⚔️, and disappearing/reappearing patterns 👻 (inspired by [ex-skill](https://github.com/titanwings/ex-skill) ✨). 🏷️ Optional manual tags (MBTI 🧩, attachment style 🪢, traits) are prioritised over inference.
 - 🗃️ **Archives** per person with journal notes 📓 (typed ⌨️ or voice 🎙️), **per-user isolation** 🚧, JSON export/import 🔄, and an installable **PWA** 📱 with a mobile layout.
+- 📄 **PDF export:** save any analysis profile as a clean, readable **PDF** 🖨️ straight from the Analysis tab — a report header (names, message count, date) plus the full breakdown, rendered fully in-browser so nothing sensitive leaves your device. 🔒
 
 ## 🛠️ Tech 💎
 
