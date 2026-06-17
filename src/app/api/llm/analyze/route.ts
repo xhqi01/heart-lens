@@ -18,12 +18,12 @@ export async function POST(req: NextRequest) {
     const cfg = await getDecryptedConfig(user.id);
     if (!cfg) throw new ConfigMissingError();
 
-    const { messages, context, messageCount } = await getAnalysisInput(user.id, archiveId);
+    const { messages, context, messageCount, tags } = await getAnalysisInput(user.id, archiveId);
     if (messageCount < 5) {
       return NextResponse.json({ error: 'Add at least 5 messages before analyzing.' }, { status: 400 });
     }
 
-    const analysis = await runAnalysis(getProvider(cfg), messages, context, lang);
+    const analysis = await runAnalysis(getProvider(cfg), messages, context, lang, tags);
     await saveAnalysis(user.id, archiveId, analysis);
     return NextResponse.json({ analysis });
   } catch (e) {

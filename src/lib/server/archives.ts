@@ -83,6 +83,9 @@ export async function createArchive(userId: string, input: CreateArchiveInput) {
       name: input.name,
       theirName: input.theirName ?? null,
       context: input.context ?? null,
+      mbti: input.mbti ?? null,
+      attachment: input.attachment ?? null,
+      traits: input.traits ?? null,
     },
   });
   return { id: a.id };
@@ -100,6 +103,9 @@ export async function getArchiveDetail(userId: string, id: string) {
     name: a.name,
     theirName: a.theirName,
     context: a.context,
+    mbti: a.mbti,
+    attachment: a.attachment,
+    traits: a.traits,
     updatedAt: a.updatedAt.getTime(),
     messages: messages.map(serializeMessage),
     journal: journal.map(serializeJournal),
@@ -115,6 +121,9 @@ export async function updateArchive(userId: string, id: string, input: UpdateArc
       ...(input.name !== undefined ? { name: input.name } : {}),
       ...(input.theirName !== undefined ? { theirName: input.theirName } : {}),
       ...(input.context !== undefined ? { context: input.context } : {}),
+      ...(input.mbti !== undefined ? { mbti: input.mbti } : {}),
+      ...(input.attachment !== undefined ? { attachment: input.attachment } : {}),
+      ...(input.traits !== undefined ? { traits: input.traits } : {}),
     },
   });
 }
@@ -178,6 +187,7 @@ export async function getAnalysisInput(userId: string, id: string) {
     messages,
     context: `${a.context || ''}${journalCtx}`.trim() || null,
     messageCount: messages.length,
+    tags: { mbti: a.mbti, attachment: a.attachment, traits: a.traits },
   };
 }
 

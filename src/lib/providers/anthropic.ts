@@ -1,4 +1,5 @@
 import type { LLMProvider, CompleteRequest, ProviderRuntimeConfig } from './types';
+import { extractProviderError } from './util';
 
 // Anthropic Messages API adapter. Runs server-side, so the dangerous
 // browser-access header is intentionally absent.
@@ -43,12 +44,20 @@ export class AnthropicProvider implements LLMProvider {
       }),
     });
 
+    const text = await res.text();
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}) as Record<string, unknown>);
-      const message = (err as { error?: { message?: string } })?.error?.message;
-      throw new Error(message || `Anthropic API error ${res.status}`);
+      throw new Error(extractProviderError(text, res.status));
     }
-    const data = (await res.json()) as { content?: { text?: string }[] };
-    return data?.content?.[0]?.text ?? '';
+    let data: { content?: { text?: string }[] };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error('The provider returned a non-JSON response.');
+    }
+    const content = data?.content?.[0]?.text ?? '';
+    if (!content) {
+      throw new Error('The provider returned an empty response — check the model name and base URL.');
+    }
+    return content;
   }
 }

@@ -177,6 +177,29 @@ const en: Dict = {
   loginTitle: 'HeartLens',
   loginSub: 'Sign in to your account.',
   loginError: 'Invalid email or password.',
+  // Imports
+  importSource: 'Import from',
+  pasteTitle: 'Paste conversation',
+  pasteHint: 'Paste your chat. Use lines like "Me: ..." and "Them: ...", or "Name: ...".',
+  doImport: 'Import',
+  // Persona + manual tags
+  personaTitle: '🧬 Persona',
+  coreRules: 'Core behavioral rules',
+  expressionStyle: 'Expression style',
+  catchphrases: 'Catchphrases',
+  highFrequencyWords: 'Frequent words',
+  signatureEmoji: 'Signature emoji',
+  replyRhythm: 'Reply rhythm',
+  disengagementSignals: 'Going-quiet signals',
+  sentenceStyle: 'Sentence style',
+  emotionalPatterns: 'Emotional patterns',
+  conflictPattern: 'Conflict pattern',
+  relationshipRole: 'Relationship role',
+  mbtiLabel: 'MBTI (optional)',
+  attachmentLabel: 'Attachment style (optional)',
+  traitsLabel: 'Trait tags (optional)',
+  traitsPlaceholder: 'e.g. guarded, witty, needs space',
+  attachmentNone: '— not set —',
 };
 
 const zh: Dict = {

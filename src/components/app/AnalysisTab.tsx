@@ -145,6 +145,154 @@ export default function AnalysisTab({
           ))}
         </div>
       )}
+
+      {a.persona && <PersonaSection persona={a.persona as Record<string, any>} t={t} />}
     </div>
+  );
+}
+
+const chipStyle = { background: 'var(--accent-light)', color: 'var(--accent)' };
+const warnChip = { background: 'var(--warning-light)', color: 'var(--warning)' };
+
+function Row({ label, children }: { label: string; children: any }) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <div className="pattern-key" style={{ marginBottom: 4 }}>
+        {label}
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>{children}</div>
+    </div>
+  );
+}
+
+function Pattern({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="pattern-item">
+      <div className="pattern-key">{k}</div>
+      <div className="pattern-val">{v}</div>
+    </div>
+  );
+}
+
+function PersonaSection({ persona, t }: { persona: Record<string, any>; t: Record<string, string> }) {
+  const ex = persona.expressionStyle || {};
+  const em = persona.emotionalPatterns || {};
+  const cc = persona.conflictChain || {};
+  const rr = persona.relationshipRole || {};
+  const arr = (v: any): any[] => (Array.isArray(v) ? v : []);
+
+  return (
+    <>
+      {arr(persona.coreRules).length > 0 && (
+        <div className="card">
+          <div className="section-label">
+            {t.personaTitle} · {t.coreRules}
+          </div>
+          {persona.coreRules.map((r: string, i: number) => (
+            <div key={i} className="insight-item">
+              {r}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="card">
+        <div className="section-label">{t.expressionStyle}</div>
+        {arr(ex.catchphrases).length > 0 && (
+          <Row label={t.catchphrases}>
+            {ex.catchphrases.map((c: string, i: number) => (
+              <span key={i} className="chip" style={chipStyle}>
+                {c}
+              </span>
+            ))}
+          </Row>
+        )}
+        {arr(ex.highFrequencyWords).length > 0 && (
+          <Row label={t.highFrequencyWords}>
+            {ex.highFrequencyWords.map((c: string, i: number) => (
+              <span key={i} className="chip" style={chipStyle}>
+                {c}
+              </span>
+            ))}
+          </Row>
+        )}
+        {arr(ex.signatureEmoji).length > 0 && (
+          <Row label={t.signatureEmoji}>
+            {ex.signatureEmoji.map((e: any, i: number) => (
+              <span key={i} className="chip" style={chipStyle}>
+                {typeof e === 'object' ? `${e.emoji} ${e.context || ''}` : e}
+              </span>
+            ))}
+          </Row>
+        )}
+        <div className="patterns-grid" style={{ marginTop: 8 }}>
+          {ex.replyRhythm && <Pattern k={t.replyRhythm} v={ex.replyRhythm} />}
+          {ex.sentenceStyle && <Pattern k={t.sentenceStyle} v={ex.sentenceStyle} />}
+          {ex.disengagementSignals && <Pattern k={t.disengagementSignals} v={ex.disengagementSignals} />}
+        </div>
+      </div>
+
+      {Object.keys(em).length > 0 && (
+        <div className="card">
+          <div className="section-label">{t.emotionalPatterns}</div>
+          <div className="patterns-grid">
+            {(['showsCare', 'showsDispleasure', 'apology', 'affection'] as const).map((k) =>
+              em[k] ? (
+                <div key={k} className="pattern-item">
+                  <div className="pattern-key">{k}</div>
+                  <div className="pattern-val">
+                    {em[k].how || String(em[k])}
+                    {em[k].quote ? (
+                      <em style={{ display: 'block', color: 'var(--text-muted)', marginTop: 3 }}>“{em[k].quote}”</em>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null,
+            )}
+          </div>
+        </div>
+      )}
+
+      {(arr(cc.triggers).length > 0 || cc.firstReaction) && (
+        <div className="card">
+          <div className="section-label">{t.conflictPattern}</div>
+          {arr(cc.triggers).length > 0 && (
+            <Row label="triggers">
+              {cc.triggers.map((c: string, i: number) => (
+                <span key={i} className="chip" style={warnChip}>
+                  {c}
+                </span>
+              ))}
+            </Row>
+          )}
+          <div className="patterns-grid" style={{ marginTop: 8 }}>
+            {cc.firstReaction && <Pattern k="first reaction" v={cc.firstReaction} />}
+            {cc.escalation && <Pattern k="escalation" v={cc.escalation} />}
+            {cc.coldWar && <Pattern k="cold war" v={cc.coldWar} />}
+            {cc.reconciliation && <Pattern k="reconciliation" v={cc.reconciliation} />}
+          </div>
+        </div>
+      )}
+
+      {Object.keys(rr).length > 0 && (
+        <div className="card">
+          <div className="section-label">{t.relationshipRole}</div>
+          <div className="patterns-grid">
+            {rr.initiation && <Pattern k="initiation" v={rr.initiation} />}
+            {rr.disappearingSigns && <Pattern k="disappearing signs" v={rr.disappearingSigns} />}
+            {rr.reappearing && <Pattern k="reappearing" v={rr.reappearing} />}
+          </div>
+          {arr(rr.boundaryTopics).length > 0 && (
+            <Row label="boundary topics">
+              {rr.boundaryTopics.map((c: string, i: number) => (
+                <span key={i} className="chip" style={chipStyle}>
+                  {c}
+                </span>
+              ))}
+            </Row>
+          )}
+        </div>
+      )}
+    </>
   );
 }

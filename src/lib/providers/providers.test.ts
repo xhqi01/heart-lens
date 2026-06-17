@@ -3,10 +3,12 @@ import { AnthropicProvider } from './anthropic';
 import { OpenAICompatibleProvider } from './openai-compatible';
 
 function mockFetch(responseBody: unknown, ok = true, status = 200) {
+  const text = typeof responseBody === 'string' ? responseBody : JSON.stringify(responseBody);
   const fn = vi.fn(async () => ({
     ok,
     status,
     json: async () => responseBody,
+    text: async () => text,
   }));
   vi.stubGlobal('fetch', fn);
   return fn;
@@ -84,5 +86,26 @@ describe('OpenAICompatibleProvider', () => {
     const body = JSON.parse((fetchFn.mock.calls[0] as [string, RequestInit])[1].body as string);
     const parts = body.messages[1].content;
     expect(parts[1].image_url.url).toBe('data:image/jpeg;base64,BBBB');
+  });
+
+  it('does not force response_format (kept off for cross-provider compatibility)', async () => {
+    const fetchFn = mockFetch({ choices: [{ message: { content: '{"ok":1}' } }] });
+    await new OpenAICompatibleProvider(cfg).complete({ system: 's', messages: [{ role: 'user', content: 'hi' }], maxTokens: 50 });
+    const body = JSON.parse((fetchFn.mock.calls[0] as [string, RequestInit])[1].body as string);
+    expect(body.response_format).toBeUndefined();
+  });
+
+  it('surfaces a provider error from a { message } shape', async () => {
+    mockFetch({ message: 'Model Not Exist' }, false, 400);
+    await expect(
+      new OpenAICompatibleProvider(cfg).complete({ system: 's', messages: [{ role: 'user', content: 'x' }], maxTokens: 10 }),
+    ).rejects.toThrow('Model Not Exist');
+  });
+
+  it('throws a clear error when the provider returns empty content', async () => {
+    mockFetch({ choices: [{ message: { content: '' } }] });
+    await expect(
+      new OpenAICompatibleProvider(cfg).complete({ system: 's', messages: [{ role: 'user', content: 'x' }], maxTokens: 10 }),
+    ).rejects.toThrow(/empty/i);
   });
 });

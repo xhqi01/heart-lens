@@ -25,8 +25,14 @@ export const api = {
     req<{ ok: true; config: PublicConfig }>('/api/config', { method: 'PUT', body: JSON.stringify(body) }),
 
   listArchives: () => req<{ archives: ArchiveSummary[] }>('/api/archives'),
-  createArchive: (body: { name: string; theirName?: string; context?: string }) =>
-    req<{ id: string }>('/api/archives', { method: 'POST', body: JSON.stringify(body) }),
+  createArchive: (body: {
+    name: string;
+    theirName?: string;
+    context?: string;
+    mbti?: string;
+    attachment?: string;
+    traits?: string;
+  }) => req<{ id: string }>('/api/archives', { method: 'POST', body: JSON.stringify(body) }),
   getArchive: (id: string) => req<{ archive: ArchiveDetail }>(`/api/archives/${id}`),
   updateArchive: (id: string, body: { name?: string; theirName?: string; context?: string }) =>
     req<{ ok: true }>(`/api/archives/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
@@ -34,7 +40,7 @@ export const api = {
 
   addMessage: (id: string, body: { sender: 'me' | 'them'; content: string }) =>
     req<{ message: Message }>(`/api/archives/${id}/messages`, { method: 'POST', body: JSON.stringify(body) }),
-  importFile: (id: string, body: { content: string; myUsername?: string }) =>
+  importFile: (id: string, body: { content: string; source?: string; myUsername?: string }) =>
     req<{ added: number }>(`/api/archives/${id}/import`, { method: 'POST', body: JSON.stringify(body) }),
 
   addJournal: (id: string, body: { text: string; tags?: string; type?: 'text' | 'voice' }) =>
